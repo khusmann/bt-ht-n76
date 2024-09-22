@@ -20,6 +20,24 @@ def hexdump(data: bytes):
         print(f'{i:08x}  {hex_values:<48}  {ascii_values}')
 
 
+def is_valid_packet(data: bytes) -> bool:
+    return data.startswith(b'\x7e') and data.endswith(b'\x7e')
+
+
+def decode_packet(data: bytes):
+    if data.startswith(b'\x00\x9c\x71\x12'):
+        print("Received Audio")
+    elif data.startswith(b'\x01\x00\x01\x00'):
+        print("Received APRS message")
+    elif data.startswith(b'\x09\x9c\x71\x12'):
+        print("Transmitting audio")
+    elif data.startswith(b'\x01\x00\x04\x00'):
+        print("Got this after transmitting audio one time?")
+    else:
+        print("Unknown packet:")
+        hexdump(data)
+
+
 def bind_rfcomm(target_device_mac: str):
     # Define the RFCOMM channel
     channel = 1  # RFCOMM channel number, adjust based on your needs
@@ -41,8 +59,11 @@ def bind_rfcomm(target_device_mac: str):
             if not data:
                 break
 
-            print("Received data (hex dump):")
-            hexdump(data)
+            if is_valid_packet(data):
+                decode_packet(data[1:-1])
+            else:
+                print("Invalid packet:")
+                hexdump(data)
 
     except socket.error as e:
         print(f"Error: {e}")
