@@ -1,6 +1,13 @@
 import socket
 import typing as t
 import argparse
+import select
+import time
+import threading
+
+
+# Global flag to control the shutdown of threads
+stop_event = threading.Event()
 
 
 def hexdump(data: bytes):
@@ -17,7 +24,7 @@ def hexdump(data: bytes):
                                126 else '.' for byte in chunk)
 
         # Print the offset, hex values, and ASCII values
-        print(f'{i:08x}  {hex_values:<48}  {ascii_values}')
+        print(f'{i:08x}  {hex_values:<48}  {ascii_values}\n')
 
 
 def is_valid_packet(data: bytes) -> bool:
@@ -38,39 +45,65 @@ def decode_packet(data: bytes):
         hexdump(data)
 
 
-def bind_rfcomm(target_device_mac: str):
-    # Define the RFCOMM channel
-    channel = 1  # RFCOMM channel number, adjust based on your needs
+def listen_for_data(sock: socket.socket):
+    while not stop_event.is_set():
+        ready_to_read, _, _ = select.select([sock], [], [], 1.0)
 
-    sock: t.Optional[socket.socket] = None
-
-    try:
-        # Create an RFCOMM socket
-        sock = socket.socket(socket.AF_BLUETOOTH,
-                             socket.SOCK_STREAM, socket.BTPROTO_RFCOMM)
-
-        # Connect to the target device
-        sock.connect((target_device_mac, channel))
-        print(f"Connected to {target_device_mac} on RFCOMM channel {channel}.")
-
-        # Listening for incoming data
-        while True:
+        if ready_to_read:
             data = sock.recv(1024)
             if not data:
                 break
+
+            print()
 
             if is_valid_packet(data):
                 decode_packet(data[1:-1])
             else:
                 print("Invalid packet:")
-                hexdump(data)
+                print(hexdump(data))
+
+            # Print command prompt again
+            print("\nEnter command: ", end='')
+
+        else:
+            time.sleep(0.1)
+
+
+def command_prompt(sock: socket.socket):
+    while not stop_event.is_set():
+        command = input("Enter command: ")
+        if command.strip() == "aprs":
+            byte_string = b'\x7e\x02\x00\x00\x00\x00\x00\x00\x00\x00\x7e'
+            print(sock.send(byte_string))
+            print("Sent byte string:", byte_string.hex())
+        else:
+            print("Unknown command. Available commands: aprs")
+
+
+def bind_rfcomm(target_device_mac: str):
+    channel = 1
+    sock: t.Optional[socket.socket] = None
+
+    try:
+        sock = socket.socket(socket.AF_BLUETOOTH,
+                             socket.SOCK_STREAM, socket.BTPROTO_RFCOMM)
+        sock.connect((target_device_mac, channel))
+        print(f"Connected to {target_device_mac} on RFCOMM channel {channel}.")
+
+        # Start a thread for listening to incoming data
+        listener_thread = threading.Thread(
+            target=listen_for_data, args=(sock,), daemon=True)
+        listener_thread.start()
+
+        # Start the command prompt in the main thread
+        command_prompt(sock)
 
     except socket.error as e:
         print(f"Error: {e}")
     finally:
+        stop_event.set()  # Signal threads to stop
         if sock:
             sock.close()
-        print()
         print("Disconnected.")
 
 
@@ -81,4 +114,8 @@ if __name__ == "__main__":
                         help="Bluetooth MAC address of the target device.")
     args = parser.parse_args()
 
-    bind_rfcomm(args.mac_address)
+    try:
+        bind_rfcomm(args.mac_address)
+    except KeyboardInterrupt:
+        print("\nShutting down...")
+        stop_event.set()  # Signal threads to stop
