@@ -1,5 +1,6 @@
 import socket
 import typing as t
+import argparse
 
 
 def hexdump(data: bytes):
@@ -19,10 +20,8 @@ def hexdump(data: bytes):
         print(f'{i:08x}  {hex_values:<48}  {ascii_values}')
 
 
-def bind_rfcomm():
-    # Define the Bluetooth MAC address and the RFCOMM channel
-    # Replace with your target device's MAC address
-    target_device_mac = "XXX"
+def bind_rfcomm(target_device_mac: str):
+    # Define the RFCOMM channel
     channel = 1  # RFCOMM channel number, adjust based on your needs
 
     sock: t.Optional[socket.socket] = None
@@ -55,4 +54,10 @@ def bind_rfcomm():
 
 
 if __name__ == "__main__":
-    bind_rfcomm()
+    parser = argparse.ArgumentParser(
+        description="Connect to a Bluetooth device via RFCOMM.")
+    parser.add_argument("mac_address", type=str,
+                        help="Bluetooth MAC address of the target device.")
+    args = parser.parse_args()
+
+    bind_rfcomm(args.mac_address)
