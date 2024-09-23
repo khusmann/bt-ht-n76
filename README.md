@@ -25,8 +25,8 @@ For more info,
 ## Log Analysis
 
 I found that the app uses the rfcomm (AKA SPP) protocol to communicate with the
-HT. It uses channel 1 for some commands and to transfer tx and rx sound clips.
-Then channel 3 is used for most of the data (channel info, APRS data, etc.)
+HT. It uses channel 1 transfering tx and rx sound clips. Then channel 3 is used
+for most of the data (setting / getting channel info, APRS data, etc.)
 
 It does NOT use the more modern GATT protocol, which is for BLE.
 

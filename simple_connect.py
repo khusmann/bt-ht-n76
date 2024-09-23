@@ -12,27 +12,29 @@ def hexdump(data: bytes, length: int = 16):
 
 
 target_device_mac = sys.argv[1]
-cmd_channel = 1
-data_channel = 3
+audio_channel_id = 1
+data_channel_id = 3
 
-cmd_sock = socket.socket(
-    socket.AF_BLUETOOTH, socket.SOCK_STREAM, socket.BTPROTO_RFCOMM)
-cmd_sock.connect((target_device_mac, cmd_channel))
-print('Connected to command channel')
+audio_sock = socket.socket(
+    socket.AF_BLUETOOTH, socket.SOCK_STREAM, socket.BTPROTO_RFCOMM
+)
+audio_sock.connect((target_device_mac, audio_channel_id))
+print('Connected to rx/tx audio channel')
 
 data_sock = socket.socket(
-    socket.AF_BLUETOOTH, socket.SOCK_STREAM, socket.BTPROTO_RFCOMM)
-data_sock.connect((target_device_mac, data_channel))
+    socket.AF_BLUETOOTH, socket.SOCK_STREAM, socket.BTPROTO_RFCOMM
+)
+data_sock.connect((target_device_mac, data_channel_id))
 print('Connected to data channel')
 
 # Enable APRS reports on data channel
 data_sock.send(b'\xff\x01\x00\x01\x00\x02\x00\x06\x01')
 
 while True:
-    r, w, e = select.select([cmd_sock, data_sock], [], [])
+    r, w, e = select.select([audio_sock, data_sock], [], [])
     for s in r:
-        if s is cmd_sock:
-            print('Received command:')
+        if s is audio_sock:
+            print('Received rx/tx audio clip:')
         elif s is data_sock:
             print('Received data:')
         else:
