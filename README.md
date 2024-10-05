@@ -29,7 +29,7 @@ The easiest way to see it working is to try out the web serial API interface.
 First you need to pair your device with your computer (put the HT in pairing
 mode and use your bluetooth settings manager or whatever to connect to it). Then
 all you need to do is go to
-[this page](https://html-preview.github.io/?https://github.com/khusmann/bt-ht-n76/blob/main/simple_connect.html).
+[this page](https://html-preview.github.io/?url=https://github.com/khusmann/bt-ht-n76/blob/main/simple_connect.html).
 
 DISCLAIMER: I AM NOT RESPONSIBLE FOR ANY DAMAGE YOU DO TO YOUR DEVICE. BY USING
 THIS YOU UNDERSTAND THIS IS SUPER EXPERIMENTAL SOFTWARE.
