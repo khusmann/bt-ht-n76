@@ -32,7 +32,8 @@ all you need to do is go to
 [this page](https://html-preview.github.io/?url=https://github.com/khusmann/bt-ht-n76/blob/main/simple_connect.html).
 
 DISCLAIMER: I AM NOT RESPONSIBLE FOR ANY DAMAGE YOU DO TO YOUR DEVICE. BY USING
-THIS YOU UNDERSTAND THIS IS SUPER EXPERIMENTAL SOFTWARE.
+THIS YOU UNDERSTAND THIS IS SUPER EXPERIMENTAL SOFTWARE AND ARE RESPONSIBLE FOR
+ANY CONSEQUENCES.
 
 Click "Connect to bluetooth device" and find your device, and it should connect.
 I have two example commands ready to send -- the one to enable APRS reports, and
