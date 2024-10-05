@@ -1,161 +1,70 @@
 # Bluetooth Protocol for VERO VR N76/ Radioddity GA-5WB, BTECH UV-pro
 
-## Creating BT Logs in Android
+This repo is very much a work in progress, and is in the "proof of concept"
+stages.
 
-First, enable "Enable Bluetooth HCI snoop log" in the developer options.
+Backstory: I have a Radiooddity GA-5WB and am enjoying the device even with all
+of its quirks. The thing that really bothers me is the app. Sure, it's nice to
+be able to program my phone over bluetooth using my phone, but:
 
-Turn bluetooth off and on again. Now you can use the app to control the HT and
-the bluetooth commands will be recorded.
+1. I can't connect to the HT via bluetooth using my computer
+2. I can't write my own apps for the HT
+3. When they stop maintaining the app the HT loses much of its value because
+   nothing will be able to program it
 
-Then, run the following command to create a bug report:
+So, I've been poking around with the bluetooth protocol to see what I can figure
+out.
 
-```
-adb bugreport bugreport_name
-```
+Here's the quick summary:
 
-Use wireshark to read the log found in:
+1. The app uses bluetooth SPP to communicate with and control the HT
+2. I can connect to and control the HT in both Python, and the web serial API
+   _(this means we can write apps for the HT in the browser!)_
+3. I can see the audio streams in Python (on RFCOMM channel 1), but haven't been
+   able to access the audio in the web API
 
-```
-FS/data/misc/bluetooth/logs/btsnoop_hci.log
-```
+## Quick start
 
-For more info,
-[this is a good resource](https://reverse-engineering-ble-devices.readthedocs.io/en/latest/protocol_reveng/00_protocol_reveng.html#logging-via-android).
+The easiest way to see it working is to try out the web serial API interface.
+First you need to pair your device with your computer (put the HT in pairing
+mode and use your bluetooth settings manager or whatever to connect to it). Then
+all you need to do is go to [this page](simple_connect.html).
 
-## Log Analysis
+DISCLAIMER: I AM NOT RESPONSIBLE FOR ANY DAMAGE YOU DO TO YOUR DEVICE. BY USING
+THIS YOU UNDERSTAND THIS IS SUPER EXPERIMENTAL SOFTWARE.
 
-I found that the app uses the rfcomm (AKA SPP) protocol to communicate with the
-HT. It uses channel 1 transfering tx and rx sound clips. Then channel 3 is used
-for most of the data (setting / getting channel info, APRS data, etc.)
+Click "Connect to bluetooth device" and find your device, and it should connect.
+I have two example commands ready to send -- the one to enable APRS reports, and
+the one to print out the settings of channel one. Try them out and see what
+happens. (AT YOUR OWN RISK)
 
-It does NOT use the more modern GATT protocol, which is for BLE.
+The Python script I've included has a little bit more features -- it allows you
+to also see the audio clips the device sends as it receives them. Those of you
+who know what you're doing can check it out.
 
-## Pairing with the device in Linux
+From here, it's just a matter of us taking the time and the elbow grease to
+reverse engineer the protocol being used. Thankfully it looks really simple!
 
-`bluetoothctl` is a command line utility that can be used to interact with
-bluetooth devices. Here we use it to connect to the HT
+The the two main ways of doing this is by creating BT logs in Android, and by
+decompiling the apk. Here's a
+[great resource for how to go about this](https://reverse-engineering-ble-devices.readthedocs.io/en/latest/protocol_reveng/00_protocol_reveng.html).
 
-```
-sudo bluetoothctl
-```
+I've poked around with both approaches, and can confidently say that this is
+totally do-able, it'll just take time. Here's
+[some assorted notes I made](NOTES.md) while poking around that might be useful
+to somebody.
 
-You'll get a console where you can interact with the bluetooth devices:
+Unfortunately I don't have much time... Anyone who can contribute, please jump
+in!
 
-```
-scan on # Start scanning for devices
-scan off # Stop scanning for devices
-pair XX:XX:XX:XX:XX:XX # Pair with the device
-trust XX:XX:XX:XX:XX:XX # Trust the device
-connect XX:XX:XX:XX:XX:XX # Connect to the device
-disconnect XX:XX:XX:XX:XX:XX # Disconnect from the device
-```
+## Where to go from here
 
-When you connect to the device, it seems to connect as a headset. It's not
-necessary to connect to the device to send commands, however -- you can just
+The big feature I think is missing from these HTs is the ability to use the KISS
+protocol, so they can be used with OSS like APRSDroid. I think the best way to
+do this would be to write a little server that runs on the phone and listens for
+KISS packets, then translates them into the proper BT serial commands. This way,
+we can use the HT with any APRS app that supports KISS!
 
-## Connecting to the device
-
-There are a lot of examples of connecting to rfcomm channels with
-[pybluez](https://github.com/pybluez/pybluez), but it doesn't seem to be
-actively developed anymore.
-
-Instead, we can use the built-in socket library in python to connect to the
-device. See [simple_connect.py] for an example without error handling:
-
-```bash
-python3 simple_connect.py XX:XX:XX:XX:XX:XX
-```
-
-## Weird bug: Data channel gets "clogged" after disconnecting.
-
-If you run the above code after freshly turning on the radio, it will work. But
-if you quit and then try to run it again, connecting to the data channel will
-result in a "Connection Refused" error.
-
-If you turn the device on and off again, it will work again. But the app appears
-to not have this problem. After some digging I found that the app will just move
-to the next channel! So if you try to connect on channel 3 and it fails, try
-channel 4, then 5, etc. Perhaps this will be fixed in future firmwares?
-
-## Next steps
-
-Start twiddling settings and figure out the commands!
-
-## Odds and ends
-
-### GATT
-
-GATT services and characteristics can be probed with `gatttool`:
-
-```bash
-gatttool -b XX:XX:XX:XX:XX:XX -I
-```
-
-```
-connect # Connect to the device
-char-desc # List all characteristics
-characteristics # List all characteristics
-char-read-uuid <UUID> # Read a characteristic
-disconnect # Disconnect from the device
-```
-
-### rfcomm
-
-`rfcomm` can also be used to bind the device to a virtual serial port:
-
-```bash
-sudo rfcomm bind /dev/rfcomm0 XX:XX:XX:XX:XX:XX 1
-```
-
-This will bind the device to `/dev/rfcomm0` on channel 1.
-
-You can then view the data being sent to the device with:
-
-```bash
-sudo cat /dev/rfcomm0
-```
-
-You can also send data to the device with:
-
-```bash
-echo -n -e '\x7e\x02\x00\x00\x00\x00\x00\x00\x00\x00\x7e' | sudo tee /dev/rfcomm0
-```
-
-When you're done, you can unbind the device with:
-
-```bash
-sudo rfcomm release /dev/rfcomm0
-```
-
-You can look at the status via
-
-```bash
-sudo rfcomm
-```
-
-### Serial
-
-You can connect to a bound rfcomm via a terminal emulator like picocom as well:
-
-```bash
-picocom /dev/rfcomm0 -b 9600
-```
-
-Also pyserial:
-
-```python
-import serial
-
-ser = serial.Serial('/dev/rfcomm0', 9600)
-ser.write(b'\x7e\x02\x00\x00\x00\x00\x00\x00\x00\x00\x7e')
-
-while True:
-    print(ser.read())
-```
-
-Note that the baud rate doesn't really mean anything in this context; The
-bluetooth stack handles everything under the surface...
-
-## Resources
-
-- https://reverse-engineering-ble-devices.readthedocs.io/en/latest/protocol_reveng/00_protocol_reveng.html
+But also, if we can figure out the full protocol, the sky's the limit! We could,
+for example, have web-based programmers that use the web serial API to program
+in repeater settings, you could have a web-based APRS interface, etc. etc. etc.
