@@ -36,7 +36,8 @@ THIS YOU UNDERSTAND THIS IS SUPER EXPERIMENTAL SOFTWARE.
 Click "Connect to bluetooth device" and find your device, and it should connect.
 I have two example commands ready to send -- the one to enable APRS reports, and
 the one to print out the settings of channel one. Try them out and see what
-happens. (AT YOUR OWN RISK)
+happens. Also try changing settings on the radio, and you should see it send
+updates as you change things. (TRY AT YOUR OWN RISK)
 
 The Python script I've included has a little bit more features -- it allows you
 to also see the audio clips the device sends as it receives them. Those of you
