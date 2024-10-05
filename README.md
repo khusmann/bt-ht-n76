@@ -35,6 +35,8 @@ DISCLAIMER: I AM NOT RESPONSIBLE FOR ANY DAMAGE YOU DO TO YOUR DEVICE. BY USING
 THIS YOU UNDERSTAND THIS IS SUPER EXPERIMENTAL SOFTWARE AND ARE RESPONSIBLE FOR
 ANY CONSEQUENCES.
 
+(Also note that I haven't upgraded my firmware yet (still on 0.6.9), and have no idea if there are any differences in the later versions... again, try the demo at your own risk!
+
 Click "Connect to bluetooth device" and find your device, and it should connect.
 I have two example commands ready to send -- the one to enable APRS reports, and
 the one to print out the settings of channel one. Try them out and see what
