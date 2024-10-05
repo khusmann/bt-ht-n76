@@ -40,6 +40,11 @@ the one to print out the settings of channel one. Try them out and see what
 happens. Also try changing settings on the radio, and you should see it send
 updates as you change things. (TRY AT YOUR OWN RISK)
 
+Here's what it looks like for me connecting to the device, enabling APRS reports, looking at channel 01 settings (You can see I have a channel named HarnessMtn), and then switching a couple channels on the device:
+
+![image](https://github.com/user-attachments/assets/28ddb184-ede1-4a57-b963-c4549addbbd0)
+
+
 The Python script I've included has a little bit more features -- it allows you
 to also see the audio clips the device sends as it receives them. Those of you
 who know what you're doing can check it out.
