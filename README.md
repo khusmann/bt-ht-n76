@@ -61,23 +61,24 @@ totally do-able, it'll just take time. Here's
 [some assorted notes I made](NOTES.md) while poking around that might be useful
 to somebody.
 
-Unfortunately I don't have much time... Anyone who can contribute, please jump
-in!
+Unfortunately I don't have much time to go much further on this project for now,
+and need to catch up on other things... Anyone who can contribute, please jump
+in! I'll be able to circle back in a bit.
 
 ## Where to go from here
 
 The big feature I think is missing from these HTs is the ability to use the KISS
 protocol, so they can be used with OSS like APRSDroid. I think the best way to
-do this would be to write a little server that runs on the phone and listens for
+do this would be to write a little TCP server that runs on the phone and listens for
 KISS packets, then translates them into the proper BT serial commands. This way,
-we can use the HT with any APRS program that supports KISS!
+we can use the HT with any [APRS program that supports KISS over TCP](https://github.com/ge0rg/aprsdroid/issues/300)!
 
 (Side note: PLEASE DEMAND OF MANUFACTURERS THAT THEY SUPPORT KISS RIGHT OUT OF
 THE BOX. WE SHOULDN'T HAVE TO HACK TOGETHER SOLUTIONS LIKE THIS. SERIOUSLY,
-EMAIL THE SUPPORT TEAM OF YOUR DEVICE MANUFACTURER AND TELL THEM YOU REALLY WISH
+EMAIL THE SUPPORT TEAM OF YOUR DEVICE MANUFACTURER RIGHT NOW AND TELL THEM YOU REALLY WISH
 YOUR DEVICE HAD KISS)
 
-But also, if we can figure out the full protocol, the sky's the limit for
+But also, once we know the full protocol, the sky's the limit for
 controlling and programming the device! We could, for example, have web-based
 programmers that use the web serial API to program in repeater settings, you
 could have a web-based APRS interface, etc. etc. etc.
