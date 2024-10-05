@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bluetooth N76 / GA5WB / UV-Pro Communication</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        margin: 0;
+      }
+
+      #log {
+        width: 80%;
+        height: 200px;
+        border: 1px solid #ccc;
+        padding: 10px;
+        margin-top: 20px;
+        overflow-y: scroll;
+        white-space: pre-wrap;
+        background-color: #f9f9f9;
+      }
+
+      #aprsBtn {
+        margin-top: 20px;
+        padding: 10px 20px;
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        cursor: pointer;
+      }
+
+      #aprsBtn:disabled {
+        background-color: #aaa;
+      }
+      #channelBtn {
+        margin-top: 20px;
+        padding: 10px 20px;
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        cursor: pointer;
+      }
+
+      #channelBtn:disabled {
+        background-color: #aaa;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Bluetooth N76 / GA5WB / UV-Pro Communication</h1>
+    <h3>
+      THIS IS SUPER EXPERIMENTAL AND MIGHT WRECK YOUR DEVICE. USE AT YOUR OWN
+      RISK
+    </h3>
+    <button id="connectBtn">Connect to Bluetooth Device</button>
+    <div id="log"></div>
+    <button id="aprsBtn" disabled>Enable APRS reports</button>
+    <button id="channelBtn" disabled>Read settings of channel 1</button>
+    <script>
+      let port;
+      let reader;
+      let writer;
+      const logElement = document.getElementById("log");
+      const connectBtn = document.getElementById("connectBtn");
+      const aprsBtn = document.getElementById("aprsBtn");
+      const channelBtn = document.getElementById("channelBtn");
+      const inputMessage = document.getElementById("inputMessage");
+
+      function log(data) {
+        logElement.innerText += data + "\n";
+        logElement.scrollTop = logElement.scrollHeight;
+      }
+
+      function formatReceivedData(value) {
+        let hexString = "0x";
+        let decodableText = "";
+
+        // Convert value to Uint8Array if it's not already
+        const byteArray = new Uint8Array(value);
+
+        for (let byte of byteArray) {
+          // Convert each byte to a hex string
+          hexString += byte.toString(16).padStart(2, "0") + ":";
+
+          // Check if byte is a printable ASCII character (between 32 and 126)
+          if (byte >= 32 && byte <= 126) {
+            decodableText += String.fromCharCode(byte);
+          } else {
+            decodableText += "."; // Use dot for non-printable characters
+          }
+        }
+
+        // Return the formatted string: hex codes and decodable text
+        return `Received Hex: ${hexString.trim()} | Text: ${decodableText}`;
+      }
+
+      // Connect to a serial device
+      connectBtn.addEventListener("click", async () => {
+        try {
+          // Request a serial port and open it
+          port = await navigator.serial.requestPort();
+          await port.open({ baudRate: 9600 });
+          log("Connected to Serial Device");
+
+          connectBtn.disabled = true;
+          aprsBtn.disabled = false;
+          channelBtn.disabled = false;
+
+          // Set up reader to listen for incoming data
+          reader = port.readable.getReader();
+
+          // Start reading data
+          readData();
+        } catch (error) {
+          log("Error: " + error);
+        }
+      });
+
+      // Read data from the serial port
+      async function readData() {
+        while (true) {
+          const { value, done } = await reader.read();
+          if (done) {
+            // Allow the serial port to be closed cleanly
+            log("Disconnected from device");
+            break;
+          }
+          if (value) {
+            log(formatReceivedData(value));
+          }
+        }
+      }
+
+      // Send data to the serial device
+      aprsBtn.addEventListener("click", async () => {
+        if (port && port.writable) {
+          const byteArray = new Uint8Array([
+            0xff, 0x01, 0x00, 0x01, 0x00, 0x02, 0x00, 0x06, 0x01,
+          ]);
+          const writer = port.writable.getWriter();
+
+          // Send the byte array to the device
+          await writer.write(byteArray);
+
+          log(
+            "Sent: " +
+              Array.from(byteArray)
+                .map((byte) => "0x" + byte.toString(16).padStart(2, "0"))
+                .join(" ")
+          );
+
+          writer.releaseLock();
+        }
+      });
+      channelBtn.addEventListener("click", async () => {
+        if (port && port.writable) {
+          const byteArray = new Uint8Array([
+            0xff, 0x01, 0x00, 0x01, 0x00, 0x02, 0x00, 0x0d, 0x00,
+          ]);
+          const writer = port.writable.getWriter();
+
+          // Send the byte array to the device
+          await writer.write(byteArray);
+
+          log(
+            "Sent: " +
+              Array.from(byteArray)
+                .map((byte) => "0x" + byte.toString(16).padStart(2, "0"))
+                .join(" ")
+          );
+
+          writer.releaseLock();
+        }
+      });
+    </script>
+  </body>
+</html>
