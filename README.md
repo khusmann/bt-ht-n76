@@ -42,7 +42,7 @@ updates as you change things. (TRY AT YOUR OWN RISK)
 
 Here's what it looks like for me connecting to the device, enabling APRS reports, looking at channel 01 settings (You can see I have a channel named HarnessMtn), and then switching a couple channels on the device:
 
-![image](https://github.com/user-attachments/assets/28ddb184-ede1-4a57-b963-c4549addbbd0)
+[![image](https://github.com/user-attachments/assets/28ddb184-ede1-4a57-b963-c4549addbbd0)](https://html-preview.github.io/?url=https://github.com/khusmann/bt-ht-n76/blob/main/simple_connect.html)
 
 
 The Python script I've included has a little bit more features -- it allows you
