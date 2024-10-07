@@ -115,7 +115,7 @@ Here's what the `<message>` looks like for a multipart aprs update:
 
 `02:01:<ax.25 frame continued>`
 
-`02:82:<message frame end>`
+`02:82:<ax.25 frame end>`
 
 The first byte (0x02) doesn't seem to change. The second byte is the part number
 of the message, in the form 0b0000XYYY, where X is 1 for the last message part,
