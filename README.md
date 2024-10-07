@@ -85,3 +85,34 @@ But also, once we know the full protocol, the sky's the limit for
 controlling and programming the device! We could, for example, have web-based
 programmers that use the web serial API to program in repeater settings, you
 could have a web-based APRS interface, etc. etc. etc.
+
+## Note structure of APRS SPP messages
+
+The standard header looks like this:
+
+ff:01:00:37:00:02:00:09:<message>
+
+Here's the breakdown:
+
+bytes[0:3] = ff:01:00 <- A standard header, doesn't change
+
+bytes[3] = 37 <- The length of the message
+
+bytes[4:6] = 00:02 <- Another standard header, doesn't change
+
+bytes[6] = 00 <- Whether the message is a response or a command (0x00 for
+command, 0x80 for response)
+
+bytes[7] = 09 <- The command (0x09 for APRS message)
+
+Here's what the <message> looks like for a multipart aprs update:
+
+02:00:<ax.25 frame start>
+
+02:01:<ax.25 frame continued>
+
+02:82:<message frame end>
+
+The first byte (0x02) doesn't seem to change. The second byte is the part number
+of the message, in the form 0b0000XYYY, where X is 1 for the last message part,
+and 0 for the rest. YYY is the message number.
