@@ -35,7 +35,9 @@ DISCLAIMER: I AM NOT RESPONSIBLE FOR ANY DAMAGE YOU DO TO YOUR DEVICE. BY USING
 THIS YOU UNDERSTAND THIS IS SUPER EXPERIMENTAL SOFTWARE AND ARE RESPONSIBLE FOR
 ANY CONSEQUENCES.
 
-(Also note that I haven't upgraded my firmware yet (still on 0.6.9), and have no idea if there are any differences in the later versions... again, try the demo at your own risk!
+(Also note that I haven't upgraded my firmware yet (still on 0.6.9), and have no
+idea if there are any differences in the later versions... again, try the demo
+at your own risk!
 
 Click "Connect to bluetooth device" and find your device, and it should connect.
 I have two example commands ready to send -- the one to enable APRS reports, and
@@ -43,10 +45,11 @@ the one to print out the settings of channel one. Try them out and see what
 happens. Also try changing settings on the radio, and you should see it send
 updates as you change things. (TRY AT YOUR OWN RISK)
 
-Here's what it looks like for me connecting to the device, enabling APRS reports, looking at channel 01 settings (You can see I have a channel named HarnessMtn), and then switching a couple channels on the device:
+Here's what it looks like for me connecting to the device, enabling APRS
+reports, looking at channel 01 settings (You can see I have a channel named
+HarnessMtn), and then switching a couple channels on the device:
 
 [![image](https://github.com/user-attachments/assets/28ddb184-ede1-4a57-b963-c4549addbbd0)](https://html-preview.github.io/?url=https://github.com/khusmann/bt-ht-n76/blob/main/simple_connect.html)
-
 
 The Python script I've included has a little bit more features -- it allows you
 to also see the audio clips the device sends as it receives them. Those of you
@@ -72,46 +75,47 @@ in! I'll be able to circle back in a bit.
 
 The big feature I think is missing from these HTs is the ability to use the KISS
 protocol, so they can be used with OSS like APRSDroid. I think the best way to
-do this would be to write a little TCP server that runs on the phone and listens for
-KISS packets, then translates them into the proper BT serial commands. This way,
-we can use the HT with any [APRS program that supports KISS over TCP](https://github.com/ge0rg/aprsdroid/issues/300)!
+do this would be to write a little TCP server that runs on the phone and listens
+for KISS packets, then translates them into the proper BT serial commands. This
+way, we can use the HT with any
+[APRS program that supports KISS over TCP](https://github.com/ge0rg/aprsdroid/issues/300)!
 
 (Side note: PLEASE DEMAND OF MANUFACTURERS THAT THEY SUPPORT KISS RIGHT OUT OF
 THE BOX. WE SHOULDN'T HAVE TO HACK TOGETHER SOLUTIONS LIKE THIS. SERIOUSLY,
-EMAIL THE SUPPORT TEAM OF YOUR DEVICE MANUFACTURER RIGHT NOW AND TELL THEM YOU REALLY WISH
-YOUR DEVICE HAD KISS)
+EMAIL THE SUPPORT TEAM OF YOUR DEVICE MANUFACTURER RIGHT NOW AND TELL THEM YOU
+REALLY WISH YOUR DEVICE HAD KISS)
 
-But also, once we know the full protocol, the sky's the limit for
-controlling and programming the device! We could, for example, have web-based
-programmers that use the web serial API to program in repeater settings, you
-could have a web-based APRS interface, etc. etc. etc.
+But also, once we know the full protocol, the sky's the limit for controlling
+and programming the device! We could, for example, have web-based programmers
+that use the web serial API to program in repeater settings, you could have a
+web-based APRS interface, etc. etc. etc.
 
-## Note structure of APRS SPP messages
+## Note on structure of APRS SPP messages
 
 The standard header looks like this:
 
-ff:01:00:37:00:02:00:09:<message>
+`ff:01:00:37:00:02:00:09:<message>`
 
 Here's the breakdown:
 
-bytes[0:3] = ff:01:00 <- A standard header, doesn't change
+bytes[0:3] = `ff:01:00` <- A standard header, doesn't change
 
-bytes[3] = 37 <- The length of the message
+bytes[3] = `37` <- The length of the message
 
-bytes[4:6] = 00:02 <- Another standard header, doesn't change
+bytes[4:6] = `00:02` <- Another standard header, doesn't change
 
-bytes[6] = 00 <- Whether the message is a response or a command (0x00 for
+bytes[6] = `00` <- Whether the message is a response or a command (0x00 for
 command, 0x80 for response)
 
-bytes[7] = 09 <- The command (0x09 for APRS message)
+bytes[7] = `09` <- The command (0x09 for APRS message)
 
-Here's what the <message> looks like for a multipart aprs update:
+Here's what the `<message>` looks like for a multipart aprs update:
 
-02:00:<ax.25 frame start>
+`02:00:<ax.25 frame start>`
 
-02:01:<ax.25 frame continued>
+`02:01:<ax.25 frame continued>`
 
-02:82:<message frame end>
+`02:82:<message frame end>`
 
 The first byte (0x02) doesn't seem to change. The second byte is the part number
 of the message, in the form 0b0000XYYY, where X is 1 for the last message part,
