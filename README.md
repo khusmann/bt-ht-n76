@@ -85,6 +85,10 @@ THE BOX. WE SHOULDN'T HAVE TO HACK TOGETHER SOLUTIONS LIKE THIS. SERIOUSLY,
 EMAIL THE SUPPORT TEAM OF YOUR DEVICE MANUFACTURER RIGHT NOW AND TELL THEM YOU
 REALLY WISH YOUR DEVICE HAD KISS)
 
+Update 2024-10-15: BTECH has released a
+[new firmware](https://www.youtube.com/watch?v=b9-tGuoEx-Y) that includes a KISS
+mode! Hooray!
+
 But also, once we know the full protocol, the sky's the limit for controlling
 and programming the device! We could, for example, have web-based programmers
 that use the web serial API to program in repeater settings, you could have a
