@@ -1,5 +1,9 @@
 # Bluetooth Protocol for VERO VR N76/ Radioddity GA-5WB, BTECH UV-pro
 
+Update 2024-12-26: This project has been superseded by
+[`benlink`](https://github.com/khusmann/benlink),
+a Python implementation of the BLE protocol used by these devices!
+
 This repo is very much a work in progress, and is in the "proof of concept"
 stages.
 
